@@ -75,30 +75,57 @@ public class Blackjack {
             List<String> playerHand = new ArrayList<>(); // Creates a string array and creates an INSTANCE for that array so it can be dynamically changed
             List<String> dealerHand = new ArrayList<>(); // Same thing here
 
-            playerHand.add(deck.remove(0));
-            dealerHand.add(deck.remove(0));
-            playerHand.add(deck.remove(0));
-            dealerHand.add(deck.remove(0));
+            playerHand.add(deck.remove(0)); // Removes a card chosen from the deck function and returns it
+            dealerHand.add(deck.remove(0)); // same here
+            playerHand.add(deck.remove(0)); // same here
+            dealerHand.add(deck.remove(0)); // same here
 
             // Show initial hands
             System.out.println("\nDealer has: " + dealerHand.get(0) + " and [hidden]");
             System.out.println("You have: " + playerHand);
 
+            if (calculateHandValue(playerHand) == 21) {
+                System.out.println("You win!");
+                balance += userBet * 1.5;
+                continue;
+            }
+
+            boolean playerWon = false;
+            
             // Player turn
-            while (true) {
+            while (true) { // decides whether the player can continue playing
                 System.out.println("\nYour total: " + calculateHandValue(playerHand));
                 System.out.print("Hit or Stand (h/s): ");
-                String choice = bet.next();
+                String choice = bet.next(); // stores user bet in an int
 
-                if (choice.equalsIgnoreCase("h")) {
-                    playerHand.add(deck.remove(0));
-                    System.out.println("Your drew: " + playerHand.get(playerHand.size() - 1));
-                    if (calculateHandValue(playerHand) > 21) {
-                        System.out.println("Bust! Your total: " + calculateHandValue(playerHand));
-                        balance -= userBet;
+                int playerTotal = calculateHandValue(playerHand);
+
+                if (choice.equalsIgnoreCase("h")) { // checks if the letter matches, ignoring whether its uppercase or lowercase
+                    playerHand.add(deck.remove(0)); // takes a card from the deck and returns it, then adds it to the players hand
+                    System.out.println("Your drew: " + playerHand.get(playerHand.size() - 1)); // gets the last card in the list of cards in the users hand
+                    playerTotal = calculateHandValue(playerHand);
+
+                    if (playerTotal == 21) {
+                        System.out.println("You win!");
+                        balance += userBet;
+                        playerWon = true;
+                        
+                        System.out.print("\nPlay again? (y/n): ");
+                        String playAgain = bet.next();
+                        if (!playAgain.equalsIgnoreCase("y")) {
+                                System.out.println("Thanks for playing! Final balance : $" + balance);
+                                System.exit(0);
+                            } else {
+                                break;
+                            }
+                        }
+
+                    if (playerTotal > 21) { // seeing if the user draws a card that makes their total over 21
+                        System.out.println("Bust! Your total: " + calculateHandValue(playerHand)); 
+                        balance -= userBet; // subtracts the users bet form their balance
                         break;
                     } 
-                } else if (choice.equalsIgnoreCase("s")) {
+                } else if (choice.equalsIgnoreCase("s")) { // if user selects s, then dont draw a card and go to dealer's turn
                     break;
                 } else {
                     System.out.println("Invalid choice. Try again");
@@ -106,7 +133,7 @@ public class Blackjack {
             }
 
             // Dealer turn
-            if (calculateHandValue(playerHand) <= 21) {
+            if (!playerWon && calculateHandValue(playerHand) <= 21) { // checks if the players hand is less than or equal to 21
                 System.out.println("\nDealer's turn...");
                 System.out.println("Dealer's hand: " + dealerHand);
 
